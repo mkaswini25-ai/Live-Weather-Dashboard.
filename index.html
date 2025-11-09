@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather App</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  /* Global Styles */
+  body {
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(to right, #3a1a3a, #e471e4);
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  /* Container */
+  .container {
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 350px;
+  }
+
+  /* Title */
+  h1 {
+    font-size: 1.8rem;
+    color: #444;
+    margin-bottom: 20px;
+  }
+
+  /* Search Box */
+  .search-box {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .search-box input {
+    width: 70%;
+    padding: 10px;
+    border-radius: 8px 0 0 8px;
+    border: 1px solid #ccc;
+    outline: none;
+    font-size: 1rem;
+  }
+
+  .search-box button {
+    background-color: #e169e1;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+
+  .search-box button:hover {
+    background-color: #f9a9ec;
+  }
+
+  /* Weather Card */
+  .weather-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  .weather-card.hidden {
+    display: none;
+  }
+
+  .weather-card h2 {
+    margin: 0;
+    color: #222;
+  }
+
+  .weather-card #date {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 10px;
+  }
+
+  .weather-card img {
+    width: 100px;
+    margin: 10px 0;
+  }
+
+  .weather-card h3 {
+    font-size: 2rem;
+    color: #333;
+    margin: 5px 0;
+  }
+
+  .weather-card p {
+    margin: 5px 0;
+    font-size: 1rem;
+    color: #555;
+  }
+
+  /* Weather Details */
+  .details {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    font-size: 0.95rem;
+    color: #444;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Weather App</h1>
+  <div class="search-box">
+    <input type="text" id="cityInput" placeholder="Enter city name">
+    <button id="searchBtn">Search</button>
+  </div>
+  <div class="weather-card hidden" id="weatherCard">
+    <h2 id="cityName"></h2>
+    <p id="date"></p>
+    <img id="weatherIcon" src="" alt="Weather Icon">
+    <h3 id="temperature"></h3>
+    <p id="description"></p>
+    <div class="details">
+      <span>Humidity: <span id="humidity"></span>%</span>
+      <span>Wind: <span id="wind"></span> m/s</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const apiKey = "824daa117ab5313f81bd138a9815760f"; // Replace with your OpenWeatherMap API key
+const searchBtn = document.getElementById("searchBtn");
+const cityInput = document.getElementById("cityInput");
+const weatherCard = document.getElementById("weatherCard");
+
+searchBtn.addEventListener("click", () => {
+  const city = cityInput.value.trim();
+  if (city) {
+    fetchWeather(city);
+  } else {
+    alert("Please enter a city name!");
+  }
+});
+
+async function fetchWeather(city) {
+  try {
+    const apiURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+    const response = await fetch(apiURL);
+    const data = await response.json();
+
+    if (data.cod === "404") {
+      alert("City not found. Please try again!");
+      weatherCard.classList.add("hidden");
+      return;
+    }
+
+    displayWeather(data);
+  } catch (error) {
+    console.error("Error fetching weather data:", error);
+  }
+}
+
+function displayWeather(data) {
+  const cityName = document.getElementById("cityName");
+  const date = document.getElementById("date");
+  const weatherIcon = document.getElementById("weatherIcon");
+  const temperature = document.getElementById("temperature");
+  const description = document.getElementById("description");
+  const humidity = document.getElementById("humidity");
+  const wind = document.getElementById("wind");
+
+  cityName.textContent = `${data.name}, ${data.sys.country}`;
+  const today = new Date();
+  date.textContent = today.toDateString();
+  temperature.textContent = `${Math.round(data.main.temp)}°C`;
+  description.textContent = data.weather[0].description;
+  humidity.textContent = data.main.humidity;
+  wind.textContent = data.wind.speed;
+
+  const iconCode = data.weather[0].icon;
+  weatherIcon.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+
+  weatherCard.classList.remove("hidden");
+}
+</script>
+
+</body>
+</html>
